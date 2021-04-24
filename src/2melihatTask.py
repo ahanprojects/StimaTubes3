@@ -1,38 +1,49 @@
-'''
-Melihat daftar task yang harus dikerjakan
-a. Seluruh task yang sudah tercatat oleh assistant
-● Contoh perintah yang dapat digunakan: “Apa saja deadline yang dimiliki
-sejauh ini?”
-b. Berdasarkan periode waktu
-i. Pada periode tertentu (DATE_1 until DATE_2)
-Contoh perintah yang dapat digunakan: “Apa saja deadline antara
-DATE_1 sampai DATE_2?”
-ii. N minggu ke depan
-Contoh perintah yang dapat digunakan: “Deadline N minggu ke depan
-apa saja?”
-iii. N hari ke depan
-Contoh perintah yang dapat digunakan: “Deadline N hari ke depan apa
-saja?”
-iv. Hari ini
-Contoh perintah yang dapat digunakan: “Apa saja deadline hari ini?”
-c. Berdasarkan jenis task (kata penting)
-i. Sesuai dengan daftar task yang didefinisikan
-ii. User dapat melihat daftar task dengan jenis task tertentu
-iii. Misalnya: “3 minggu ke depan ada kuis apa saja?”, maka Chatbot akan
-menampilkan daftar kuis selama 3 minggu kedepan
-'''
+import sqlite3
+import datetime as dt
+DATABASE_NAME = 'TaskTest.db'
 # semua task
 def seeTaskAll():
     pass
 
 # berdasarkan waktu
-def seeTaskPeriode():
+def seeTaskByWaktu(date1=None,date2=None,jumlah_minggu=None, jumlah_hari=None, jenis=None):
+    
+    # berdasarkan periode
+    if date1 is not None and date2 is not None:
+        start_date = date1
+        end_date = date2
+    
+    # berdasarkan minggu
+    elif jumlah_minggu is not None:
+        start_date = dt.date.today()
+        end_date = start_date + dt.timedelta(days=7*jumlah_minggu)
+
+    # berdasarkan hari
+    elif jumlah_hari is not None:
+        start_date = dt.date.today()
+        end_date = start_date + dt.timedelta(days=jumlah_hari)
+
+    # open db
+    conn = sqlite3.connect(DATABASE_NAME)
+    c = conn.cursor()
+
+    if jenis is None:
+        ret = c.execute(
+        '''
+        SELECT * FROM Task WHERE Tanggal BETWEEN ? AND ?
+        ''', [start_date,end_date])
+    else:
+        ret = c.execute(
+        '''
+        SELECT * FROM Task WHERE JenisTask = ? AND Tanggal BETWEEN ? AND ?
+        ''', [jenis,start_date,end_date])
+
+    conn.commit()
+    for r in ret:
+        print(r)
+    
+
+
+def seeTaskToday(jenis=None):
     pass
 
-def seeTaskWeek():
-    pass
-
-def seeTaskToday():
-    pass
-
-# berdasarkan jenis
