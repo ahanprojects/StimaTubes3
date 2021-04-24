@@ -99,3 +99,28 @@ def updateTask(ID, newDate):
     c.execute("UPDATE Task SET Tanggal = ? WHERE ID = ?", [newDate, ID])
     conn.commit()
     print("Task berhasil di Update")
+
+# 5
+def markTask(ID):
+    # open database
+    conn = sqlite3.connect(DATABASE_NAME)
+    c = conn.cursor()
+    # cari task ada atau ngga
+    ada = c.execute("SELECT * FROM Task WHERE ID = ?", ID)
+    conn.commit()
+
+    if len(ada) == 0: # berarti tidak ada task
+        print("Task tidak ditemukan.")
+    else:
+        # terus update
+        conn = sqlite3.connect(DATABASE_NAME)
+        c = conn.cursor()
+        c.execute("UPDATE Task SET Status = ? WHERE ID = ?", [1, ID])
+        conn.commit()
+        print("Berhasil menandai task.")
+
+# 6 : help
+
+# 7 : definisi kata penting
+
+# 8 : pesan error
