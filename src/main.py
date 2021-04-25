@@ -318,19 +318,14 @@ def rAddTask(query):
     # return
     date = datetime.datetime.strptime(arrtgl[0], '%d-%m-%Y').date()
     addTask(date, kode, jenis, topik)
+    global isRun
+    isRun = True
 
 
 def rSeeTask(query):
     # periksa bakal make fungsi seeAll, berdasarkan minggu atau hari dll.
     # disini kalau wajib kata 'deadline', command "3 minggu lagi ada kuis apa?" gajalan, jadi ga wajib sementara
-    global kataPenting
-
-    # cari kata "deadline"
-    # if not KMPSearch("deadline",query):
-    #     print("Tidak ada kata deadline.")
-    #     return
-    # else:
-    #     print("Kata deadline ditemukan.")
+    global kataPenting, isRun
 
     # cari apakah ada jenis
     jenis = ''
@@ -338,6 +333,11 @@ def rSeeTask(query):
         if KMPSearch(kata,query):
             jenis = kata
             break
+
+    # cari kata "deadline"
+    if jenis == '':
+        if not KMPSearch("deadline",query):
+            return
 
     # cari tanggal
     arrtgl = cariTanggal(query)
@@ -347,6 +347,7 @@ def rSeeTask(query):
         date1 = datetime.datetime.strptime(arrtgl[0], '%d-%m-%Y').date()
         date2 = datetime.datetime.strptime(arrtgl[1], '%d-%m-%Y').date()
         seeTaskByWaktu(date1=date1, date2=date2, jenis=jenis)
+        isRun = True
         return
 
     arr_query = query.split()
@@ -359,6 +360,7 @@ def rSeeTask(query):
                 id_jumlah_minggu = i - 1
                 break
         seeTaskByWaktu(jumlah_minggu=int(arr_query[id_jumlah_minggu]), jenis=jenis)
+        isRun = True
         return
     
     if KMPSearch('hari',query):
@@ -370,6 +372,7 @@ def rSeeTask(query):
         
         try:
             seeTaskByWaktu(jumlah_hari=int(arr_query[id_jumlah_hari]), jenis=jenis)
+            isRun = True
             return
         except:
             pass
@@ -381,11 +384,14 @@ def rSeeTask(query):
             seeTaskByWaktu(jumlah_hari=0, jenis=jenis)
         else:
             seeTaskAll()
+        isRun = True
         return
     return
 
 def rShowDeadline(query):
     # hanya untuk tugas (tubes, tucil)
+    global isRun
+
     # cari kata "deadline"
     if not KMPSearch("deadline",query):
         return
@@ -402,6 +408,7 @@ def rShowDeadline(query):
             break
 
     showDeadline(arr_query[id_kode])
+    isRun = True
 
 def rUpdateTask(query):
     # cari kata "deadline"
@@ -428,6 +435,7 @@ def rUpdateTask(query):
             break
     date = datetime.datetime.strptime(arrtgl[0], '%d-%m-%Y').date()
     updateTask(int(arr_query[id]),date)
+    isRun = True
 
 def rMarkTask(query):
     # Saya sudah selesai mengerjakan task ID
@@ -452,6 +460,7 @@ def rMarkTask(query):
             id = i + 1
             break
     markTask(int(arr_query[id]))
+    isRun = True
 
 def rHelp(query):
     kataSinyal = ['help','bisa','apain','lakukan']
@@ -462,10 +471,11 @@ def rHelp(query):
     if not adaSinyal:
         return
     help()
-
+    isRun = True
 
 # ================================= MAIN PROGRAM =================================
 kataPenting = ["kuis", "ujian", "tucil", "tubes", "praktikum"]
+isRun = False   # ada fungsi yg ke run atau nggas
 '''
 Kata wajib tiap soal :
 1. addTask : tanggal, kode, jenis, topik
@@ -482,7 +492,9 @@ Kata wajib tiap soal :
 6. help : ?
 '''
 def main():
+    global isRun
     while True:
+        isRun = False
         q = str(input("\nQuery : "))
         query = cleanQuery(q)
         rAddTask(query)
@@ -491,5 +503,7 @@ def main():
         rMarkTask(query)
         rHelp(query)
         rSeeTask(query)
+        if not isRun:
+            print("Maaf, pesan tidak dikenali.")
     
 main()
