@@ -40,7 +40,7 @@ def seeTaskAll():
     # open db
     conn = sqlite3.connect(DATABASE_NAME)
     c = conn.cursor()
-    c.execute("SELECT * FROM Task")
+    c.execute("SELECT * FROM Task WHERE Status = 0")
     tasks = c.fetchall()
     conn.commit()
     print("[DAFTAR DEADLINE]")
@@ -94,6 +94,7 @@ def seeTaskByWaktu(date1=None,date2=None,jumlah_minggu=None, jumlah_hari=None, j
 
 # 3
 def showDeadline(kodematkul):
+    kodematkul = kodematkul.upper()
     # open db
     conn = sqlite3.connect(DATABASE_NAME)
     c = conn.cursor()
@@ -101,6 +102,10 @@ def showDeadline(kodematkul):
     c.execute("SELECT * FROM Task WHERE KodeMatkul = ? AND (JenisTask = ? OR JenisTask = ?)", [kodematkul,'Tucil','Tubes'])
     tasks = c.fetchall()
     conn.commit()
+
+    if len(tasks) == 0:
+        print("Tidak ada tugas "+kodematkul)
+        return
     # print deadlinenya
     for task in tasks:
         print(task[2]+" - "+task[1])

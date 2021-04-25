@@ -1,3 +1,21 @@
+# Jangan di delete ini regexnya fungsi masing2, belom digabung
+# nanti kan pas digabung, prosedur yg ngulang bakal dihapus
+'''
+Kata wajib tiap soal :
+1. addTask : tanggal, kode, jenis, topik
+2. seeTask : deadline.
+    optional : jenis
+    a. byDate : 2 date
+    b. byMinggu : minggu
+    c. byHari : hari
+    d. byToday : hari ini, not sampai, not sejauh
+    e. seeAll : -
+3. showDeadline : deadline, tugas, tubes, tucil
+4. updateTask : deadline, 1 date, task
+5. markTask : kataSinyal, task
+6. help : ?
+'''
+
 import re
 import string
 from dbfunction import *
@@ -287,6 +305,3 @@ def rMarkTask(query):
             id = i + 1
             break
     markTask(id)
-
-def rHelp():
-    pass
