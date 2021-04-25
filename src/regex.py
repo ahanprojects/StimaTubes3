@@ -5,8 +5,10 @@ txt = "The rain in Spain"
 x = re.search("^The.*Spain$", txt)
 print(x)
 
-kataPenting = ["Kuis", "Ujian", "Tucil", "Tubes", "Praktikum"]
+kataPentingJenis = ["Kuis", "Ujian", "Tucil", "Tubes", "Praktikum"]
 
+# perhitungkan lower upper case ini gaperlu btw cuman nyatet doang
+# kataygseringkeluar = ["deadline", "minggu", "hari", "sampai", "task", "menjadi", "selesai"]
 def cleanQuery(x): 
     query = x
     # print("lowercase == uppercase")
