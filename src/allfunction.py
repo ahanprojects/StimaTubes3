@@ -51,6 +51,9 @@ def seeTaskAll():
 # berdasarkan waktu
 def seeTaskByWaktu(date1=None,date2=None,jumlah_minggu=None, jumlah_hari=None, jenis=None):
     
+    if jenis == '':
+        jenis = None
+
     # berdasarkan periode
     if date1 is not None and date2 is not None:
         start_date = date1
@@ -207,5 +210,3 @@ def main():
     seedb(DATABASE_NAME)
 
     help()
-
-main()
