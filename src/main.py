@@ -161,7 +161,7 @@ def showDeadline(kodematkul,tipe):
         tasks = c.fetchall()
         conn.commit()
     else:
-        return "Input tipe not tugas, tucil, or tubes"
+        return "Error. tipe not tugas, tucil, or tubes"
 
     if len(tasks) == 0:
         print("Tidak ada "+str(tipe)+" "+str(kodematkul))
@@ -328,15 +328,20 @@ def cariTanggal(query):
 
 def cariAngkaSelainTanggal(query):
     arrnum = re.findall(r'[0-9]+[-].+|([0-9._]+)+', query)
+    if arrnum == []:
+        return [-999]
     if arrnum is not None:
         return arrnum
-    return []
+    return [-999]
+    
 
 def cariKodeMatkul(query):
     arrkode = re.findall(r'[A-Za-z]{2}[0-9]{4}', query)
+    if arrkode == []:
+        return [-999]
     if arrkode is not None:
         return arrkode
-    return []
+    return [-999]
 # ================================= FUNGSI REGEX =================================
 def rAddTask(query, run):
     # harus punya empat komponen : tanggal, kode matkul, jenis (kata penting), topik
@@ -419,11 +424,26 @@ def rSeeTask(query):
             jenis = kata
             break
 
-    # cari kata "deadline"
-    if jenis == '':
-        if not KMPSearch("deadline",query):
+    # Kasus khusus : kalo gaada 'deadline', wajib : angka, (minggu/hari), jenis
+    if not KMPSearch("deadline",query):       
+        if jenis == '':
             return
+        else:
+            arr_jml_wkt = cariAngkaSelainTanggal(query)
+            jml_wkt = int(arr_jml_wkt[0])
+            if jml_wkt == -999:
+                return
+            else:
+                if KMPSearch('minggu',query):
+                    isRun = True
+                    return seeTaskByWaktu(jumlah_minggu=jml_wkt, jenis=jenis)
+                elif KMPSearch('minggu',query):
+                    isRun = True
+                    return seeTaskByWaktu(jumlah_hari=jml_wkt, jenis=jenis)
+                else:
+                    return
 
+    # deadline wajib, jenis optional
     # cari tanggal
     arrtgl = cariTanggal(query)
 
@@ -433,32 +453,23 @@ def rSeeTask(query):
         date2 = datetime.datetime.strptime(arrtgl[1], '%d-%m-%Y').date()
         isRun = True
         return seeTaskByWaktu(date1=date1, date2=date2, jenis=jenis)
-
-    arr_query = query.split()
-
-    # jika ada kata minggu
-    if KMPSearch('minggu',query):
-        # cari minggu adalah kata ke berapa pada query
-        for i,kata in enumerate(arr_query):
-            if kata == 'minggu':
-                id_jumlah_minggu = i - 1
-                break
-        isRun = True
-        return seeTaskByWaktu(jumlah_minggu=int(arr_query[id_jumlah_minggu]), jenis=jenis)
-
     
-    if KMPSearch('hari',query):
-        # cari hari adalah kata ke berapa pada query
-        for i,kata in enumerate(arr_query):
-            if kata == 'hari':
-                id_jumlah_hari = i - 1
-                break
-        
-        try:
+    arr_jml_wkt = cariAngkaSelainTanggal(query)
+    print("arrjml",arr_jml_wkt)
+    jml_wkt = int(arr_jml_wkt[0])
+    if not jml_wkt == -999:
+
+        # jika ada kata minggu
+        if KMPSearch('minggu',query):
             isRun = True
-            return seeTaskByWaktu(jumlah_hari=int(arr_query[id_jumlah_hari]), jenis=jenis)
-        except:
-            pass
+            return seeTaskByWaktu(jumlah_minggu=jml_wkt, jenis=jenis)
+
+        if KMPSearch('hari',query):
+            try:
+                isRun = True
+                return seeTaskByWaktu(jumlah_hari=jml_wkt, jenis=jenis)
+            except:
+                pass
 
     # Pakai yang seeAll atau hari ini
     # asumsi : kalau ada kata sejauh dan sampai, pake seeTaskAll
@@ -466,9 +477,13 @@ def rSeeTask(query):
         isRun = True
         if KMPSearch('hari ini',query) and not KMPSearch('sampai',query) and not KMPSearch('sejauh',query):
             return seeTaskByWaktu(jumlah_hari=0, jenis=jenis)
-        else:
+        
+        elif KMPSearch('besok',query) and jml_wkt == -999:
+            return seeTaskByWaktu(jumlah_hari=1, jenis=jenis)
+
+        else: # hanya ada kata 'deadline'
             return seeTaskAll()
-    return
+    return "Kata kunci kurang."
 
 def rShowDeadline(query):
     # hanya untuk tugas (tubes, tucil)
