@@ -21,7 +21,7 @@ def seedb(nama):
     c.execute("SELECT * FROM Task")
     tasks = c.fetchall()
     conn.commit()
-
+    
     print("[SEE DATABASE]")
     print("(ID) Tanggal - Kode Matkul - Jenis Task - Topik - Status")
     for i,task in enumerate(tasks):
@@ -37,8 +37,14 @@ def addTask(tanggal, kodematkul, jenis, topik):
     c = conn.cursor()
     c.execute("INSERT INTO Task (Tanggal, KodeMatkul, JenisTask, Topik, Status) VALUES (?,?,?,?,?)", task)
     conn.commit()
+
+    # print
     print("[TASK BERHASIL DICATAT]")
     print("(ID: "+str(task[0])+") - "+str(task[1])+" - "+str(task[2])+" - "+str(task[3]))
+
+    # ret
+    ret = "[TASK BERHASIL DICATAT]<br>" + "(ID: "+str(task[0])+") - "+str(task[1])+" - "+str(task[2])+" - "+str(task[3])
+    return ret
 
 
 # 2
@@ -49,11 +55,20 @@ def seeTaskAll():
     c.execute("SELECT * FROM Task WHERE Status = 0")
     tasks = c.fetchall()
     conn.commit()
+
+    # print
     print("[DAFTAR DEADLINE]")
     print("(ID) Tanggal - Kode Matkul - Jenis Task - Topik")
     for i,task in enumerate(tasks):
         print(str(i+1)+". "+"(ID: "+str(task[0])+") - "+str(task[1])+" - "+str(task[2])+" - "+str(task[3])+" - "+str(task[4]))
     
+    # ret
+    ret = "[DAFTAR DEADLINE]"
+    ret += "<br>(ID) Tanggal - Kode Matkul - Jenis Task - Topik"
+    for i,task in enumerate(tasks):
+        ret += '<br>'+(str(i+1)+". "+"(ID: "+str(task[0])+") - "+str(task[1])+" - "+str(task[2])+" - "+str(task[3])+" - "+str(task[4]))
+    return ret
+
 # berdasarkan waktu
 def seeTaskByWaktu(date1=None,date2=None,jumlah_minggu=None, jumlah_hari=None, jenis=None):
     
@@ -95,30 +110,51 @@ def seeTaskByWaktu(date1=None,date2=None,jumlah_minggu=None, jumlah_hari=None, j
     conn.commit()
     if len(tasks) == 0:
         print("Tidak ada.")
-        return
+        return "Tidak ada."
+    
+    # print
     print("[DAFTAR DEADLINE]")
     print("(ID) Tanggal - Kode Matkul - Jenis Task - Topik - Status")
     for i,task in enumerate(tasks):
         print(str(i+1)+". "+"(ID: "+str(task[0])+") - "+str(task[1])+" - "+str(task[2])+" - "+str(task[3])+" - "+str(task[4]))
     print()
 
+    # ret
+    ret = "[DAFTAR DEADLINE]"
+    ret += "<br>(ID) Tanggal - Kode Matkul - Jenis Task - Topik"
+    for i,task in enumerate(tasks):
+        ret += '<br>'+(str(i+1)+". "+"(ID: "+str(task[0])+") - "+str(task[1])+" - "+str(task[2])+" - "+str(task[3])+" - "+str(task[4]))
+    return ret
+
+
 # 3
-def showDeadline(kodematkul):
+def showDeadline(kodematkul,tipe):
+    # tipe = tugas, tucil, tubes
+    tipe = tipe.lower()
     kodematkul = kodematkul.upper()
     # open db
     conn = sqlite3.connect(DATABASE_NAME)
     c = conn.cursor()
     # cari nama kodematkul pada database
-    c.execute("SELECT * FROM Task WHERE KodeMatkul = ? AND (JenisTask = ? OR JenisTask = ?)", [kodematkul,'Tucil','Tubes'])
-    tasks = c.fetchall()
-    conn.commit()
+    if tipe == "tugas":
+        c.execute("SELECT * FROM Task WHERE KodeMatkul = ? AND (JenisTask = ? OR JenisTask = ?)", [kodematkul,'Tucil','Tubes'])
+        tasks = c.fetchall()
+        conn.commit()
+    elif tipe == "tucil" or tipe == "tubes":
+        c.execute("SELECT * FROM Task WHERE KodeMatkul = ? AND JenisTask = ?", [kodematkul,tipe])
+        tasks = c.fetchall()
+        conn.commit()
+    else:
+        return "Input tipe not tugas, tucil, or tubes"
 
     if len(tasks) == 0:
-        print("Tidak ada tugas "+kodematkul)
-        return
+        print("Tidak ada "+str(tipe)+" "+str(kodematkul))
+        return ("Tidak ada "+str(tipe)+" "+str(kodematkul))
     # print deadlinenya
+    ret = ''
     for task in tasks:
-        print(task[2]+" - "+task[1]+" - "+task[3])
+        ret += '<br>'+(task[3] + " "+task[2]+" : "+task[1])
+    return ret
 
 # 4
 def updateTask(ID, newDate):
@@ -132,11 +168,13 @@ def updateTask(ID, newDate):
 
     if len(ada) == 0: # berarti tidak ada task
         print("Task ID: "+str(ID)+" tidak ditemukan.")
+        return ("Task ID: "+str(ID)+" tidak ditemukan.")
     else:
         # terus update
         c.execute("UPDATE Task SET Tanggal = ? WHERE ID = ?", [newDate, ID])
         conn.commit()
         print("Task ID: "+str(ID)+" berhasil di-update.")
+        return ("Task ID: "+str(ID)+" berhasil di-update.")
 
 # 5
 def markTask(ID):
@@ -149,11 +187,13 @@ def markTask(ID):
     conn.commit()
     if len(ada) == 0: # berarti tidak ada task
         print("Task ID: "+str(ID)+" tidak ditemukan.")
+        return ("Task ID: "+str(ID)+" tidak ditemukan.")
     else:
         # terus update
         c.execute("UPDATE Task SET Status = 1 WHERE ID = ?", [ID])
         conn.commit()
         print("Berhasil menandai Task, ID: "+str(ID))
+        return ("Berhasil menandai Task, ID: "+str(ID))
 
 # 6 : help. command : "apa yang bisa assistant lakukan?"
 def help():
@@ -189,6 +229,7 @@ def help():
 5. Praktikum
     '''
     print(out)
+    return out
 # 7 : definisi kata penting
 # 8 : pesan error : "Apakah mayones sebuah instrumen?", "Maaf pesan tidak dikenali"
 
@@ -272,7 +313,7 @@ def cariTanggal(query):
 # ================================= FUNGSI REGEX =================================
 def rAddTask(query):
     # harus punya empat komponen : tanggal, kode matkul, jenis (kata penting), topik
-    # ide : kode, jenis, topik ditulis terurut. tanggal ga harus.
+    # ide : jenis, kode, topik ditulis terurut. tanggal ga harus.
 
     global kataPenting 
     # cari tanggal
@@ -317,9 +358,11 @@ def rAddTask(query):
 
     # return
     date = datetime.datetime.strptime(arrtgl[0], '%d-%m-%Y').date()
-    addTask(date, kode, jenis, topik)
     global isRun
     isRun = True
+    
+    return addTask(date, kode, jenis, topik)
+
 
 
 def rSeeTask(query):
@@ -346,9 +389,8 @@ def rSeeTask(query):
     if len(arrtgl) == 2:    
         date1 = datetime.datetime.strptime(arrtgl[0], '%d-%m-%Y').date()
         date2 = datetime.datetime.strptime(arrtgl[1], '%d-%m-%Y').date()
-        seeTaskByWaktu(date1=date1, date2=date2, jenis=jenis)
         isRun = True
-        return
+        return seeTaskByWaktu(date1=date1, date2=date2, jenis=jenis)
 
     arr_query = query.split()
 
@@ -359,9 +401,9 @@ def rSeeTask(query):
             if kata == 'minggu':
                 id_jumlah_minggu = i - 1
                 break
-        seeTaskByWaktu(jumlah_minggu=int(arr_query[id_jumlah_minggu]), jenis=jenis)
         isRun = True
-        return
+        return seeTaskByWaktu(jumlah_minggu=int(arr_query[id_jumlah_minggu]), jenis=jenis)
+
     
     if KMPSearch('hari',query):
         # cari hari adalah kata ke berapa pada query
@@ -371,21 +413,19 @@ def rSeeTask(query):
                 break
         
         try:
-            seeTaskByWaktu(jumlah_hari=int(arr_query[id_jumlah_hari]), jenis=jenis)
             isRun = True
-            return
+            return seeTaskByWaktu(jumlah_hari=int(arr_query[id_jumlah_hari]), jenis=jenis)
         except:
             pass
 
     # Pakai yang seeAll atau hari ini
     # asumsi : kalau ada kata sejauh dan sampai, pake seeTaskAll
     if len(arrtgl) == 0:
-        if KMPSearch('hari ini',query) and not KMPSearch('sampai',query) and not KMPSearch('sejauh',query):
-            seeTaskByWaktu(jumlah_hari=0, jenis=jenis)
-        else:
-            seeTaskAll()
         isRun = True
-        return
+        if KMPSearch('hari ini',query) and not KMPSearch('sampai',query) and not KMPSearch('sejauh',query):
+            return seeTaskByWaktu(jumlah_hari=0, jenis=jenis)
+        else:
+            return seeTaskAll()
     return
 
 def rShowDeadline(query):
@@ -405,10 +445,11 @@ def rShowDeadline(query):
     for i,kata in enumerate(arr_query):
         if kata == 'tubes' or kata == 'tucil' or kata == 'tugas':
             id_kode = i + 1
+            tipe = kata
             break
 
-    showDeadline(arr_query[id_kode])
     isRun = True
+    return showDeadline(arr_query[id_kode],tipe)
 
 def rUpdateTask(query):
     # cari kata "deadline"
@@ -434,8 +475,9 @@ def rUpdateTask(query):
             id = i + 1
             break
     date = datetime.datetime.strptime(arrtgl[0], '%d-%m-%Y').date()
-    updateTask(int(arr_query[id]),date)
+    global isRun
     isRun = True
+    return updateTask(int(arr_query[id]),date)
 
 def rMarkTask(query):
     # Saya sudah selesai mengerjakan task ID
@@ -459,8 +501,9 @@ def rMarkTask(query):
         if kata == 'task':
             id = i + 1
             break
-    markTask(int(arr_query[id]))
+    global isRun
     isRun = True
+    return markTask(int(arr_query[id]))
 
 def rHelp(query):
     kataSinyal = ['help','bisa','apain','lakukan']
@@ -470,8 +513,9 @@ def rHelp(query):
             adaSinyal = True
     if not adaSinyal:
         return
-    help()
+    global isRun
     isRun = True
+    return help()
 
 # ================================= MAIN PROGRAM =================================
 kataPenting = ["kuis", "ujian", "tucil", "tubes", "praktikum"]
@@ -489,21 +533,41 @@ Kata wajib tiap soal :
 3. showDeadline : deadline, tugas, tubes, tucil
 4. updateTask : deadline, 1 date, task
 5. markTask : kataSinyal, task
-6. help : ?
+6. help : kataSinyal
 '''
-def main():
+def main(query):
     global isRun
-    while True:
-        isRun = False
-        q = str(input("\nQuery : "))
-        query = cleanQuery(q)
-        rAddTask(query)
-        rShowDeadline(query)
-        rUpdateTask(query)
-        rMarkTask(query)
-        rHelp(query)
-        rSeeTask(query)
-        if not isRun:
-            print("Maaf, pesan tidak dikenali.")
+    isRun = False
+    query = cleanQuery(query)
+
+    rAddTask(query)
+    if isRun:
+        return rAddTask(query)
+
+    rShowDeadline(query)
+    if isRun:
+        return rShowDeadline(query)
     
-main()
+    rUpdateTask(query)     
+    if isRun:
+        return rUpdateTask(query) 
+
+    rMarkTask(query)
+    if isRun:
+        return rMarkTask(query)
+
+    rHelp(query)
+    if isRun:
+        return rHelp(query)
+
+    rHelp(query)   
+    if isRun:
+        return rHelp(query)
+
+    rSeeTask(query)
+    if isRun:
+        return rSeeTask(query)
+
+    if not isRun:
+        return "Maaf, pesan tidak dikenali."
+    return
