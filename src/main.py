@@ -1,6 +1,6 @@
 import re
 import string
-from kmp import KMPSearch, delBeforeKMP
+from kmp import KMPSearch
 # ================================= DB FUNCTIONS =================================
 # Fungsi manipulasi database
 
@@ -242,6 +242,9 @@ def help():
 3. Tucil
 4. Tubes
 5. Praktikum
+
+[Catatan]
+- Tanggal ditulis dengan format DD-MM-YYYY
     '''
     print(out)
     return out
@@ -455,13 +458,6 @@ def rUpdateTask(query):
     id_task = cariAngkaSelainTanggal(query)
     print("Mark Task ID "+str(id_task[0]))
 
-    # ini asumsi
-    # arr_query = query.split()
-    # # cari kode matkul
-    # for i,kata in enumerate(arr_query):
-    #     if kata == 'task':
-    #         id = i + 1
-    #         break
     date = datetime.datetime.strptime(arrtgl[0], '%d-%m-%Y').date()
     global isRun
     isRun = True
@@ -469,7 +465,7 @@ def rUpdateTask(query):
 
 def rMarkTask(query):
     # Saya sudah selesai mengerjakan task ID
-    # cari kata "sudah"
+    # cari kata "sudah" dll
     kataSinyal = ['udah','kerja','mengerja','selesai']
     adaSinyal = False
     for kata in kataSinyal:
@@ -485,13 +481,6 @@ def rMarkTask(query):
     # cari id task
     id_task = cariAngkaSelainTanggal(query)
     print("Mark Task ID "+str(id_task[0]))
-    # ini asumsi 
-    # arr_query = query.split()
-    # # cari kode matkul
-    # for i,kata in enumerate(arr_query):
-    #     if kata == 'task':
-    #         id = i + 1
-    #         break
 
     global isRun
     isRun = True
@@ -511,7 +500,7 @@ def rHelp(query):
 
 # ================================= MAIN PROGRAM =================================
 kataPenting = ["kuis", "ujian", "tucil", "tubes", "praktikum"]
-isRun = False   # ada fungsi yg ke run atau nggas
+isRun = False   # ada fungsi yg ke run atau ngga
 '''
 Kata wajib tiap soal :
 1. addTask : tanggal, kode, jenis, topik
@@ -561,5 +550,5 @@ def main(query):
         return rSeeTask(query)
 
     if not isRun:
-        return "Maaf, pesan tidak dikenali."
+        return "Maaf, pesan tidak dikenali atau format salah, ketik help untuk bantuan."
     return
