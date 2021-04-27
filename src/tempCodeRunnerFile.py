@@ -1,1 +1,2 @@
-i != len(prefix)-1
+
+                i += 1

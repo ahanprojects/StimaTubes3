@@ -29,22 +29,28 @@ def kmpStringMatch(pattern, teks):
     lenpat = len(pattern)
     i = 0 ## indeks untuk teks
     j = 0 ## indeks untuk pattern
+    starti = 0 ## indeks teks yang setelah pergeseran
     while (i < lenteks):
-        if ( lenpat == j ):
-            print(pattern, " found in index ", i-j, " until ", j-1)
-            return True
         ## bestcase if == di awal
-        if(pattern[i] == teks[j]):
+        if(pattern[j] == teks[i]):
             i+=1
             j+=1
+            if ( lenpat == j ):
+                print(pattern, " found in index ", i-j, " until ", i-1)
+                return True
         else:
             firstn = takeFirstN(pattern, j)
-            print(firstn)
             if (j==0):
                 i += 1
             else :
-                
-                return
+                pre = createPrefix(firstn)
+                sub = createSubfix(firstn)
+                geser = getGeser(pre,sub)
+                starti += geser
+                j = 0
+                i = starti
+    return False
             
-pre =  kmpStringMatch("ohemoo","ohemangg")
-sub = createSubfix("ayaha")
+pre = createPrefix("aca")
+sub = createSubfix("aca")
+print(kmpStringMatch("acaa","acacadacaa"))
