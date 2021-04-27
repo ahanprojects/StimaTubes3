@@ -31,15 +31,20 @@ def kmpStringMatch(pattern, teks):
     j = 0 ## indeks untuk pattern
     while (i < lenteks):
         if ( lenpat == j ):
-            print(pattern, " found in index ", i-j, " until ", j)
+            print(pattern, " found in index ", i-j, " until ", j-1)
             return True
         ## bestcase if == di awal
         if(pattern[i] == teks[j]):
             i+=1
             j+=1
         else:
-            print('')
+            firstn = takeFirstN(pattern, j)
+            print(firstn)
+            if (j==0):
+                i += 1
+            else :
+                
+                return
             
-pre = createPrefix("ayaha")
+pre =  kmpStringMatch("ohemoo","ohemangg")
 sub = createSubfix("ayaha")
-print(getGeser(pre,sub))
