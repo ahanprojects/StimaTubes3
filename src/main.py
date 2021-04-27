@@ -1,6 +1,6 @@
 import re
 import string
-
+from kmp import KMPSearch, delBeforeKMP
 # ================================= DB FUNCTIONS =================================
 # Fungsi manipulasi database
 
@@ -142,7 +142,6 @@ def seeTaskByWaktu(date1=None,date2=None,jumlah_minggu=None, jumlah_hari=None, j
         ret += '<br>'+(str(i+1)+". "+"(ID: "+str(task[0])+") - "+str(task[1])+" - "+str(task[2])+" - "+str(task[3])+" - "+str(task[4]))
     return ret
 
-
 # 3
 def showDeadline(kodematkul,tipe):
     # tipe = tugas, tucil, tubes
@@ -249,69 +248,6 @@ def help():
 # 7 : definisi kata penting
 # 8 : pesan error : "Apakah mayones sebuah instrumen?", "Maaf pesan tidak dikenali"
 
-# ================================= KMP =================================
-def KMPSearch(pattern, text):
-    # diclean query dulu dua-duanya
-    pattern = cleanQuery(pattern)
-    text = cleanQuery(text)
-    M = len(pattern)
-    N = len(text)
-
-    # create lps[] that will hold the longest prefix suffix
-    # values for patterntern
-    lps = [0]*M
-    j = 0 # index for pattern[]
-
-    # Preprocess the patterntern (calculate lps[] array)
-    computeLPSArray(pattern, M, lps)
-
-    i = 0 # index for text[]
-    while i < N:
-        if pattern[j] == text[i]:
-            i += 1
-            j += 1
-
-        if j == M:
-            # print ("Found pattern at index " + str(i-j))
-            j = lps[j-1]
-            return True
-
-        # mismatch after j matches
-        elif i < N and pattern[j] != text[i]:
-            # Do not match lps[0..lps[j-1]] characters,
-            # they will match anyway
-            if j != 0:
-                j = lps[j-1]
-            else:
-                i += 1
-
-    return False
-
-def computeLPSArray(pattern, M, lps):
-    len = 0 # length of the previous longest prefix suffix
-
-    lps[0] # lps[0] is always 0
-    i = 1
-
-    # the loop calculates lps[i] for i = 1 to M-1
-    while i < M:
-        if pattern[i]== pattern[len]:
-            len += 1
-            lps[i] = len
-            i += 1
-        else:
-            # This is tricky. Consider the example.
-            # AAACAAAA and i = 7. The idea is similar
-            # to search step.
-            if len != 0:
-                len = lps[len-1]
-
-                # Also, note that we do not increment i here
-            else:
-                lps[i] = 0
-                i += 1
-
-
 # ================================= REGEX =================================
 # hapus spasi berlebih, ubah jadi lower case
 def cleanQuery(query):
@@ -345,7 +281,7 @@ def cariKodeMatkul(query):
 # ================================= FUNGSI REGEX =================================
 def rAddTask(query, run):
     # harus punya empat komponen : tanggal, kode matkul, jenis (kata penting), topik
-    # ide : jenis, kode, topik ditulis terurut. tanggal ga harus.
+    # ide : setelah kode pasti topik, ditulis terurut.
 
     global kataPenting 
     # cari tanggal
@@ -369,21 +305,8 @@ def rAddTask(query, run):
         return
     kode = arrkode[0]
 
+    # topik ditulis setelah kode matkul, misal : IF2210 bab 2 sampai 3
     arr_query = query.split()
-
-    # asumsi
-    # jika setelah jenis gaada tulisan lagi, ga valid
-    # for i,kata in enumerate(arr_query):
-    #     if kata == jenis:
-    #         idx_jenis = i
-
-    # if jenis == arr_query[len(arr_query)-1]:    # Jika jenis merupakan kata terakhir pada text
-    #     return
-    # else:
-    #     idx_kode = idx_jenis+1
-    #     kode = arr_query[idx_kode]
-    
-    # topik
     for i,kata in enumerate(arr_query):
         if kata == kode:
             idx_kode = i
@@ -455,7 +378,7 @@ def rSeeTask(query):
         return seeTaskByWaktu(date1=date1, date2=date2, jenis=jenis)
     
     arr_jml_wkt = cariAngkaSelainTanggal(query)
-    print("arrjml",arr_jml_wkt)
+    # print("arrjml",arr_jml_wkt)
     jml_wkt = int(arr_jml_wkt[0])
     if not jml_wkt == -999:
 
@@ -503,7 +426,6 @@ def rShowDeadline(query):
     else:
         return
     
-    arr_query = query.split()
     # cari kode matkul
     arrkode = cariKodeMatkul(query)
     if len(arrkode) != 1:
@@ -600,7 +522,7 @@ Kata wajib tiap soal :
     c. byHari : hari
     d. byToday : hari ini, not sampai, not sejauh
     e. seeAll : -
-3. showDeadline : deadline, tugas, tubes, tucil
+3. showDeadline : deadline, pilih satu : tugas, tubes, tucil
 4. updateTask : deadline, 1 date, task
 5. markTask : kataSinyal, task
 6. help : kataSinyal
