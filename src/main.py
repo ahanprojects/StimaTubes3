@@ -146,17 +146,17 @@ def seeTaskByWaktu(date1=None,date2=None,jumlah_minggu=None, jumlah_hari=None, j
 # 3
 def showDeadline(kodematkul,tipe):
     # tipe = tugas, tucil, tubes
-    tipe = tipe.lower()
+    tipe = tipe.capitalize()
     kodematkul = kodematkul.upper()
     # open db
     conn = sqlite3.connect(DATABASE_NAME)
     c = conn.cursor()
     # cari nama kodematkul pada database
-    if tipe == "tugas":
+    if tipe == "Tugas":
         c.execute("SELECT * FROM Task WHERE KodeMatkul = ? AND (JenisTask = ? OR JenisTask = ?)", [kodematkul,'Tucil','Tubes'])
         tasks = c.fetchall()
         conn.commit()
-    elif tipe == "tucil" or tipe == "tubes":
+    elif tipe == "Tucil" or tipe == "Tubes":
         c.execute("SELECT * FROM Task WHERE KodeMatkul = ? AND JenisTask = ?", [kodematkul,tipe])
         tasks = c.fetchall()
         conn.commit()
@@ -326,6 +326,17 @@ def cariTanggal(query):
         return tanggal
     return []
 
+def cariAngkaSelainTanggal(query):
+    arrnum = re.findall(r'[0-9]+[-].+|([0-9._]+)+', query)
+    if arrnum is not None:
+        return arrnum
+    return []
+
+def cariKodeMatkul(query):
+    arrkode = re.findall(r'[A-Za-z]{2}[0-9]{4}', query)
+    if arrkode is not None:
+        return arrkode
+    return []
 # ================================= FUNGSI REGEX =================================
 def rAddTask(query, run):
     # harus punya empat komponen : tanggal, kode matkul, jenis (kata penting), topik
@@ -348,19 +359,31 @@ def rAddTask(query, run):
     if not bool_jenis:
         return
 
-    arr_query = query.split()
-    # jika setelah jenis gaada tulisan lagi, ga valid
-    for i,kata in enumerate(arr_query):
-        if kata == jenis:
-            idx_jenis = i
-
-    if jenis == arr_query[len(arr_query)-1]:    # Jika jenis merupakan kata terakhir pada text
+    arrkode = cariKodeMatkul(query)
+    if len(arrkode) != 1:
         return
-    else:
-        idx_kode = idx_jenis+1
-        kode = arr_query[idx_kode]
+    kode = arrkode[0]
+
+    arr_query = query.split()
+
+    # asumsi
+    # jika setelah jenis gaada tulisan lagi, ga valid
+    # for i,kata in enumerate(arr_query):
+    #     if kata == jenis:
+    #         idx_jenis = i
+
+    # if jenis == arr_query[len(arr_query)-1]:    # Jika jenis merupakan kata terakhir pada text
+    #     return
+    # else:
+    #     idx_kode = idx_jenis+1
+    #     kode = arr_query[idx_kode]
     
     # topik
+    for i,kata in enumerate(arr_query):
+        if kata == kode:
+            idx_kode = i
+            break
+
     if arr_query[len(arr_query)-1] == arrtgl[0]:    # kalau tanggal ditulis diakhir
         if arr_query[len(arr_query)-2].lower() not in ['pada','tanggal']:
             arr_topik = arr_query[idx_kode+1:len(arr_query)-1]
@@ -456,19 +479,24 @@ def rShowDeadline(query):
         return
 
     # cari kata tugas, tubes, atau tucil
-    if not KMPSearch('tugas',query) and not KMPSearch('tubes',query) and not KMPSearch('tucil',query):
+    if KMPSearch('tugas',query):
+        tipe = 'tugas'
+    elif KMPSearch('tubes',query):
+        tipe = 'tubes'
+    elif KMPSearch('tucil',query):
+        tipe = 'tucil'
+    else:
         return
     
     arr_query = query.split()
     # cari kode matkul
-    for i,kata in enumerate(arr_query):
-        if kata == 'tubes' or kata == 'tucil' or kata == 'tugas':
-            id_kode = i + 1
-            tipe = kata
-            break
+    arrkode = cariKodeMatkul(query)
+    if len(arrkode) != 1:
+        return
+    kode = arrkode[0]
 
     isRun = True
-    return showDeadline(arr_query[id_kode],tipe)
+    return showDeadline(kode,tipe)
 
 def rUpdateTask(query):
     # cari kata "deadline"
@@ -487,16 +515,20 @@ def rUpdateTask(query):
         return
 
     # cari id task
-    arr_query = query.split()
-    # cari kode matkul
-    for i,kata in enumerate(arr_query):
-        if kata == 'task':
-            id = i + 1
-            break
+    id_task = cariAngkaSelainTanggal(query)
+    print("Mark Task ID "+str(id_task[0]))
+
+    # ini asumsi
+    # arr_query = query.split()
+    # # cari kode matkul
+    # for i,kata in enumerate(arr_query):
+    #     if kata == 'task':
+    #         id = i + 1
+    #         break
     date = datetime.datetime.strptime(arrtgl[0], '%d-%m-%Y').date()
     global isRun
     isRun = True
-    return updateTask(int(arr_query[id]),date)
+    return updateTask(int(id_task[0]),date)
 
 def rMarkTask(query):
     # Saya sudah selesai mengerjakan task ID
@@ -514,15 +546,19 @@ def rMarkTask(query):
         return
 
     # cari id task
-    arr_query = query.split()
-    # cari kode matkul
-    for i,kata in enumerate(arr_query):
-        if kata == 'task':
-            id = i + 1
-            break
+    id_task = cariAngkaSelainTanggal(query)
+    print("Mark Task ID "+str(id_task[0]))
+    # ini asumsi 
+    # arr_query = query.split()
+    # # cari kode matkul
+    # for i,kata in enumerate(arr_query):
+    #     if kata == 'task':
+    #         id = i + 1
+    #         break
+
     global isRun
     isRun = True
-    return markTask(int(arr_query[id]))
+    return markTask(int(id_task[0]))
 
 def rHelp(query):
     kataSinyal = ['help','bisa','apain','lakukan']
