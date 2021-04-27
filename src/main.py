@@ -35,15 +35,31 @@ def addTask(tanggal, kodematkul, jenis, topik):
     # open db
     conn = sqlite3.connect(DATABASE_NAME)
     c = conn.cursor()
+
+    # caritahu apakah task sudah ada
+    c.execute("SELECT * FROM Task WHERE Tanggal = ? AND KodeMatkul = ? AND JenisTask = ? AND  Topik = ? AND Status = ?", task)
+    ta = c.fetchall()
+    conn.commit()
+    for a in ta:
+        print("ta "+str(a[0]))
+    if len(ta) != 0:
+        return "Task sudah pernah dicatat, ID : "+str(ta[0][0])
+
     c.execute("INSERT INTO Task (Tanggal, KodeMatkul, JenisTask, Topik, Status) VALUES (?,?,?,?,?)", task)
     conn.commit()
 
+    # caritahu id
+    c.execute("SELECT * FROM Task WHERE Tanggal = ? AND KodeMatkul = ? AND JenisTask = ? AND  Topik = ? AND Status = ?", task)
+    t = c.fetchall()
+    print(t)
+    conn.commit()
     # print
     print("[TASK BERHASIL DICATAT]")
-    print("(ID: "+str(task[0])+") - "+str(task[1])+" - "+str(task[2])+" - "+str(task[3]))
+    print("(ID: "+str(t[0][0])+") - "+str(t[0][1])+" - "+str(t[0][2])+" - "+str(t[0][3])+" - "+str(t[0][4]))
 
     # ret
-    ret = "[TASK BERHASIL DICATAT]<br>" + "(ID: "+str(task[0])+") - "+str(task[1])+" - "+str(task[2])+" - "+str(task[3])
+    ret = ("[TASK BERHASIL DICATAT]<br>")
+    ret += ("(ID: "+str(t[0][0])+") - "+str(t[0][1])+" - "+str(t[0][2])+" - "+str(t[0][3])+" - "+str(t[0][4]))
     return ret
 
 
@@ -311,7 +327,7 @@ def cariTanggal(query):
     return []
 
 # ================================= FUNGSI REGEX =================================
-def rAddTask(query):
+def rAddTask(query, run):
     # harus punya empat komponen : tanggal, kode matkul, jenis (kata penting), topik
     # ide : jenis, kode, topik ditulis terurut. tanggal ga harus.
 
@@ -361,7 +377,10 @@ def rAddTask(query):
     global isRun
     isRun = True
     
-    return addTask(date, kode, jenis, topik)
+    if run == False:
+        return
+    else:
+        return addTask(date, kode, jenis, topik)
 
 
 
@@ -540,9 +559,9 @@ def main(query):
     isRun = False
     query = cleanQuery(query)
 
-    rAddTask(query)
+    rAddTask(query, False)
     if isRun:
-        return rAddTask(query)
+        return rAddTask(query, True)
 
     rShowDeadline(query)
     if isRun:
