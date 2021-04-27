@@ -50,7 +50,33 @@ def kmpStringMatch(pattern, teks):
                 j = 0
                 i = starti
     return False
+
+def delAfterKMP(pattern, teks):
+    lenteks = len(teks)
+    lenpat = len(pattern)
+    i = 0 ## indeks untuk teks
+    j = 0 ## indeks untuk pattern
+    starti = 0 ## indeks teks yang setelah pergeseran
+    while (i < lenteks):
+        ## bestcase if == di awal
+        if(pattern[j] == teks[i]):
+            i+=1
+            j+=1
+            if ( lenpat == j ):
+                print(pattern, " found in index ", i-j, " until ", i-1)
+                return teks[(i):lenteks]
+        else:
+            firstn = takeFirstN(pattern, j)
+            if (j==0):
+                i += 1
+            else :
+                pre = createPrefix(firstn)
+                sub = createSubfix(firstn)
+                geser = getGeser(pre,sub)
+                starti += geser
+                j = 0
+                i = starti
+    return teks
             
-pre = createPrefix("aca")
-sub = createSubfix("aca")
-print(kmpStringMatch("acaa","acacadacaa"))
+
+print(delAfterKMP("harith","eh emg harith doyan babi"))
