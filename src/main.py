@@ -435,6 +435,7 @@ def rUpdateTask(query):
             break
     date = datetime.datetime.strptime(arrtgl[0], '%d-%m-%Y').date()
     updateTask(int(arr_query[id]),date)
+    global isRun
     isRun = True
 
 def rMarkTask(query):
@@ -460,6 +461,7 @@ def rMarkTask(query):
             id = i + 1
             break
     markTask(int(arr_query[id]))
+    global isRun
     isRun = True
 
 def rHelp(query):
@@ -471,6 +473,7 @@ def rHelp(query):
     if not adaSinyal:
         return
     help()
+    global isRun
     isRun = True
 
 # ================================= MAIN PROGRAM =================================
