@@ -213,14 +213,17 @@ def markTask(ID):
 # 6 : help. command : "apa yang bisa assistant lakukan?"
 def help():
     out = '''
+<pre>
 [Fitur]
 1. Menambahkan task baru
     contoh : 
-        "Tubes IF221 String Matching pada 14/04/2021"
+        "Tubes IF221 String Matching pada
+         14/04/2021"
 2. Melihat daftar task
     contoh : 
         "Apa saja deadline yang ada ?"
-        "Apa saja deadline antara 03/04/2021 sampai 15/04/2021 ?"
+        "Apa saja deadline antara 03/04/2021
+         sampai 15/04/2021 ?"
         "Deadline 3 minggu kedepan apa saja ?"
         "Deadline 1 hari kedepan apa saja ?"
 3. Menampilkan deadline suatu task
@@ -228,7 +231,8 @@ def help():
         "Deadline tugas IF221 itu kapan ?"
 4. Memperbaharui task
     contoh : 
-        "Deadline task 2 diundur menjadi 28/04/2021"
+        "Deadline task 2 diundur menjadi
+         28/04/2021"
 5. Menandai task yang sudah dikerjakan
     contoh : 
         "Saya sudah mengerjakan task 3"
@@ -245,6 +249,7 @@ def help():
 
 [Catatan]
 - Tanggal ditulis dengan format DD-MM-YYYY
+</pre>
     '''
     print(out)
     return out
