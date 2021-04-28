@@ -12,7 +12,7 @@ import datetime
 import os
 c = os.path.dirname(os.path.realpath(__file__))
 par = os.path.split(c)[0]
-DATABASE_NAME = os.path.join(par, 'test', "default.db")
+DATABASE_NAME = "../default.db"
 print("Database :" + DATABASE_NAME)
 
 # fungsi tambahan untuk tes
