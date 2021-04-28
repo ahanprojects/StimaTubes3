@@ -14,14 +14,14 @@ Tugas besar ketiga ini berjudul "Penerapan String Matching dan Regular Expressio
 ### Mac OS
 1. Buka terminal,
 2. Pindah ke directory src,
-3. Ketik “Python3 app.py”,
+3. Ketik `Python3 app.py`,
 4. Buka browser, lalu pergi ke "localhost:5000",
 5. Assistant bot siap digunakan!
 
 ### Windows
 1. Buka cmd,
 2. Pindah ke directory src,
-3. Ketik “python app.py”,
+3. Ketik `python app.py`,
 4. Buka browser, lalu pergi ke "localhost:5000",
 5. Assistant bot siap digunakan!
 
