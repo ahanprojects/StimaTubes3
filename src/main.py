@@ -504,6 +504,8 @@ def rHelp(query):
     if not adaSinyal:
         return
 
+    if KMPSearch("deadline",query):
+        return
     # gaboleh ada kataPenting, tanggal, kode matkul
     for kata in kataPenting:
         if KMPSearch(kata,query):
