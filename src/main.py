@@ -40,8 +40,6 @@ def addTask(tanggal, kodematkul, jenis, topik):
     c.execute("SELECT * FROM Task WHERE Tanggal = ? AND KodeMatkul = ? AND JenisTask = ? AND  Topik = ? AND Status = ?", task)
     ta = c.fetchall()
     conn.commit()
-    for a in ta:
-        print("ta "+str(a[0]))
     if len(ta) != 0:
         return "Task sudah pernah dicatat, ID : "+str(ta[0][0])
 
@@ -54,8 +52,9 @@ def addTask(tanggal, kodematkul, jenis, topik):
     print(t)
     conn.commit()
     # print
+    tgl = str(datetime.datetime.strptime(t[0][1], "%Y-%m-%d").strftime("%d-%m-%Y"))
     print("[TASK BERHASIL DICATAT]")
-    print("(ID: "+str(t[0][0])+") - "+str(t[0][1])+" - "+str(t[0][2])+" - "+str(t[0][3])+" - "+str(t[0][4]))
+    print("(ID: "+str(t[0][0])+") - "+str(tgl)+" - "+str(t[0][2])+" - "+str(t[0][3])+" - "+str(t[0][4]))
 
     # ret
     ret = ("[TASK BERHASIL DICATAT]<br>")
@@ -76,13 +75,15 @@ def seeTaskAll():
     print("[DAFTAR DEADLINE]")
     print("(ID) Tanggal - Kode Matkul - Jenis Task - Topik")
     for i,task in enumerate(tasks):
-        print(str(i+1)+". "+"(ID: "+str(task[0])+") - "+str(task[1])+" - "+str(task[2])+" - "+str(task[3])+" - "+str(task[4]))
+        tgl = datetime.datetime.strptime(task[1], "%Y-%m-%d").strftime("%d-%m-%Y")
+        print(str(i+1)+". "+"(ID: "+str(task[0])+") - "+str(tgl)+" - "+str(task[2])+" - "+str(task[3])+" - "+str(task[4]))
     
     # ret
     ret = "[DAFTAR DEADLINE]"
     ret += "<br>(ID) Tanggal - Kode Matkul - Jenis Task - Topik"
     for i,task in enumerate(tasks):
-        ret += '<br>'+(str(i+1)+". "+"(ID: "+str(task[0])+") - "+str(task[1])+" - "+str(task[2])+" - "+str(task[3])+" - "+str(task[4]))
+        tgl = datetime.datetime.strptime(task[1], "%Y-%m-%d").strftime("%d-%m-%Y")
+        ret += '<br>'+(str(i+1)+". "+"(ID: "+str(task[0])+") - "+str(tgl)+" - "+str(task[2])+" - "+str(task[3])+" - "+str(task[4]))
     return ret
 
 # berdasarkan waktu
@@ -130,16 +131,18 @@ def seeTaskByWaktu(date1=None,date2=None,jumlah_minggu=None, jumlah_hari=None, j
     
     # print
     print("[DAFTAR DEADLINE]")
-    print("(ID) Tanggal - Kode Matkul - Jenis Task - Topik - Status")
+    print("(ID) Tanggal - Kode Matkul - Jenis Task - Topik")
     for i,task in enumerate(tasks):
-        print(str(i+1)+". "+"(ID: "+str(task[0])+") - "+str(task[1])+" - "+str(task[2])+" - "+str(task[3])+" - "+str(task[4]))
+        tgl = datetime.datetime.strptime(task[1], "%Y-%m-%d").strftime("%d-%m-%Y")
+        print(str(i+1)+". "+"(ID: "+str(task[0])+") - "+str(tgl)+" - "+str(task[2])+" - "+str(task[3])+" - "+str(task[4]))
     print()
 
     # ret
     ret = "[DAFTAR DEADLINE]"
     ret += "<br>(ID) Tanggal - Kode Matkul - Jenis Task - Topik"
     for i,task in enumerate(tasks):
-        ret += '<br>'+(str(i+1)+". "+"(ID: "+str(task[0])+") - "+str(task[1])+" - "+str(task[2])+" - "+str(task[3])+" - "+str(task[4]))
+        tgl = datetime.datetime.strptime(task[1], "%Y-%m-%d").strftime("%d-%m-%Y")
+        ret += '<br>'+(str(i+1)+". "+"(ID: "+str(task[0])+") - "+str(tgl)+" - "+str(task[2])+" - "+str(task[3])+" - "+str(task[4]))
     return ret
 
 # 3
@@ -168,7 +171,7 @@ def showDeadline(kodematkul,tipe):
     # print deadlinenya
     ret = ''
     for task in tasks:
-        ret += '<br>'+(task[3] + " "+task[2]+" : "+task[1])
+        ret += '<br>'+(task[3] + " "+task[2]+" : "+str(datetime.datetime.strptime(task[1], "%Y-%m-%d").strftime("%d-%m-%Y")))
     return ret
 
 # 4
@@ -281,11 +284,9 @@ def cariAngkaSelainTanggal(query):
 
 def cariKodeMatkul(query):
     arrkode = re.findall(r'[A-Za-z]{2}[0-9]{4}', query)
-    if arrkode == []:
-        return [-999]
     if arrkode is not None:
         return arrkode
-    return [-999]
+    return []
 # ================================= FUNGSI REGEX =================================
 def rAddTask(query, run):
     # harus punya empat komponen : tanggal, kode matkul, jenis (kata penting), topik
@@ -368,7 +369,7 @@ def rSeeTask(query):
                 if KMPSearch('minggu',query):
                     isRun = True
                     return seeTaskByWaktu(jumlah_minggu=jml_wkt, jenis=jenis)
-                elif KMPSearch('minggu',query):
+                elif KMPSearch('hari',query):
                     isRun = True
                     return seeTaskByWaktu(jumlah_hari=jml_wkt, jenis=jenis)
                 else:
@@ -461,7 +462,6 @@ def rUpdateTask(query):
 
     # cari id task
     id_task = cariAngkaSelainTanggal(query)
-    print("Mark Task ID "+str(id_task[0]))
 
     date = datetime.datetime.strptime(arrtgl[0], '%d-%m-%Y').date()
     global isRun
@@ -485,20 +485,33 @@ def rMarkTask(query):
 
     # cari id task
     id_task = cariAngkaSelainTanggal(query)
-    print("Mark Task ID "+str(id_task[0]))
 
     global isRun
     isRun = True
     return markTask(int(id_task[0]))
 
 def rHelp(query):
-    kataSinyal = ['help','bisa','apain','lakukan']
+    global kataPenting
+    kataSinyal = ['help','apa saja','apain','lakukan']
     adaSinyal = False
     for kata in kataSinyal:
         if KMPSearch(kata,query):
             adaSinyal = True
     if not adaSinyal:
         return
+
+    # gaboleh ada kataPenting, tanggal, kode matkul
+    for kata in kataPenting:
+        if KMPSearch(kata,query):
+            return
+
+    arrkode = cariKodeMatkul(query)
+    if arrkode != []:
+        return
+    arrtgl = cariTanggal(query)
+    if arrtgl != []:
+        return
+        
     global isRun
     isRun = True
     return help()
