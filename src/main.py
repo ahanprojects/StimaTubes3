@@ -9,7 +9,11 @@ from kmp import KMPSearch
 # import dan define
 import sqlite3
 import datetime
-DATABASE_NAME = "default.db"
+import os
+c = os.path.dirname(os.path.realpath(__file__))
+par = os.path.split(c)[0]
+DATABASE_NAME = os.path.join(par, 'test', "default.db")
+print("Database :" + DATABASE_NAME)
 
 # fungsi tambahan untuk tes
 def seedb(nama):
@@ -535,6 +539,7 @@ Kata wajib tiap soal :
 6. help : kataSinyal
 '''
 def main(query):
+    
     global isRun
     isRun = False
     query = cleanQuery(query)
