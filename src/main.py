@@ -363,7 +363,7 @@ def rSeeTask(query):
                 if KMPSearch('minggu',query):
                     isRun = True
                     return seeTaskByWaktu(jumlah_minggu=jml_wkt, jenis=jenis)
-                elif KMPSearch('minggu',query):
+                elif KMPSearch('hari',query):
                     isRun = True
                     return seeTaskByWaktu(jumlah_hari=jml_wkt, jenis=jenis)
                 else:
