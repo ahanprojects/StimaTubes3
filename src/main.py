@@ -461,7 +461,6 @@ def rUpdateTask(query):
 
     # cari id task
     id_task = cariAngkaSelainTanggal(query)
-    print("Mark Task ID "+str(id_task[0]))
 
     date = datetime.datetime.strptime(arrtgl[0], '%d-%m-%Y').date()
     global isRun
@@ -485,7 +484,6 @@ def rMarkTask(query):
 
     # cari id task
     id_task = cariAngkaSelainTanggal(query)
-    print("Mark Task ID "+str(id_task[0]))
 
     global isRun
     isRun = True
